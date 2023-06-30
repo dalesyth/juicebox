@@ -22,8 +22,11 @@ async function createTables() {
     await client.query(`
             CREATE TABLE users (
                 id SERIAL PRIMARY KEY,
-                username varchar(255) UNIQUE NOT NULL,
-                password varchar(255) NOT NULL
+                username VARCHAR(255) UNIQUE NOT NULL,
+                password VARCHAR(255) NOT NULL,
+                name VARCHAR(255) NOT NULL,
+                location VARCHAR(255) NOT NULL,
+                active BOOLEAN DEFAULT true
             );
         `);
 
@@ -38,24 +41,28 @@ async function createInitialUsers() {
   try {
     console.log("Starting to create users...");
 
-    const albert = await createUser({
+    await createUser({
       username: "albert",
       password: "bertie99",
+      name: "Albert",
+      location: "San Diego, CA"
     });
 
-    const sandra = await createUser({
+    await createUser({
       username: "sandra",
       password: "2sandy4me",
+      name: "Sandra",
+      location: "Denver, CO"
     });
 
-    const glamgal = await createUser({
+    await createUser({
       username: "glamgal",
       password: "soglam",
+      name: "Vanessa",
+      location: "Tampa, FL"
     });
 
-    console.log(albert);
-    console.log(sandra);
-    console.log(glamgal);
+  
 
     console.log("Finished creating users!");
   } catch (error) {
