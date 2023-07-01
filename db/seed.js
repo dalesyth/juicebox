@@ -1,12 +1,12 @@
-const { client, getAllUsers, createUser } = require("./index");
+const { client, getAllUsers, createUser, updateUser } = require("./index");
 
 async function dropTables() {
   try {
     console.log("Starting to drop tables...");
 
     await client.query(`
-            DROP TABLE IF EXISTS users;
-        `);
+      DROP TABLE IF EXISTS users;
+    `);
 
     console.log("Finished dropping tables!");
   } catch (error) {
@@ -20,15 +20,15 @@ async function createTables() {
     console.log("Starting to build tables...");
 
     await client.query(`
-            CREATE TABLE users (
-                id SERIAL PRIMARY KEY,
-                username VARCHAR(255) UNIQUE NOT NULL,
-                password VARCHAR(255) NOT NULL,
-                name VARCHAR(255) NOT NULL,
-                location VARCHAR(255) NOT NULL,
-                active BOOLEAN DEFAULT true
-            );
-        `);
+      CREATE TABLE users (
+        id SERIAL PRIMARY KEY,
+        username VARCHAR(255) UNIQUE NOT NULL,
+        password VARCHAR(255) NOT NULL,
+        name VARCHAR(255) NOT NULL,
+        location VARCHAR(255) NOT NULL,
+        active BOOLEAN DEFAULT true
+      );
+    `);
 
     console.log("Finished building tables!");
   } catch (error) {
@@ -45,24 +45,20 @@ async function createInitialUsers() {
       username: "albert",
       password: "bertie99",
       name: "Albert",
-      location: "San Diego, CA"
+      location: "San Diego, CA",
     });
-
     await createUser({
       username: "sandra",
       password: "2sandy4me",
       name: "Sandra",
-      location: "Denver, CO"
+      location: "Denver, CO",
     });
-
     await createUser({
       username: "glamgal",
       password: "soglam",
       name: "Vanessa",
-      location: "Tampa, FL"
+      location: "Miami, FL",
     });
-
-  
 
     console.log("Finished creating users!");
   } catch (error) {
@@ -85,10 +81,18 @@ async function rebuildDB() {
 
 async function testDB() {
   try {
-    console.log("starting to test database...");
+    console.log("Starting to test database...");
 
+    console.log("Calling getAllUsers");
     const users = await getAllUsers();
     console.log("getAllUsers:", users);
+
+    console.log("Calling updateUser on users[0]")
+    const updateUserResult = await updateUser(users[0].id, {
+      name: "Newname Sogood",
+      location: "Lesterville, KY"
+    });
+    console.log("updateUserResult:", updateUserResult);
 
     console.log("Finished database tests!");
   } catch (error) {
