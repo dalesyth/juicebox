@@ -5,7 +5,9 @@ async function dropTables() {
     console.log("Starting to drop tables...");
 
     await client.query(`
+      DROP TABLE IF EXISTS posts;
       DROP TABLE IF EXISTS users;
+      
     `);
 
     console.log("Finished dropping tables!");
@@ -28,6 +30,15 @@ async function createTables() {
         location VARCHAR(255) NOT NULL,
         active BOOLEAN DEFAULT true
       );
+
+      CREATE TABLE posts (
+        id SERIAL PRIMARY KEY,
+        "authorId" INTEGER REFERENCES users(id) NOT NULL,
+        title VARCHAR(255) NOT NULL,
+        content TEXT NOT NULL,
+        active BOOLEAN DEFAULT true
+      )
+
     `);
 
     console.log("Finished building tables!");
@@ -87,10 +98,10 @@ async function testDB() {
     const users = await getAllUsers();
     console.log("getAllUsers:", users);
 
-    console.log("Calling updateUser on users[0]")
+    console.log("Calling updateUser on users[0]");
     const updateUserResult = await updateUser(users[0].id, {
       name: "Newname Sogood",
-      location: "Lesterville, KY"
+      location: "Lesterville, KY",
     });
     console.log("updateUserResult:", updateUserResult);
 
