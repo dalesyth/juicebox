@@ -15,6 +15,8 @@ async function dropTables() {
     console.log("Starting to drop tables...");
 
     await client.query(`
+      DROP TABLE IF EXISTS post_tags;
+      DROP TABLE IF EXISTS tags;
       DROP TABLE IF EXISTS posts;
       DROP TABLE IF EXISTS users;
       
@@ -48,6 +50,16 @@ async function createTables() {
         content TEXT NOT NULL,
         active BOOLEAN DEFAULT true
       );
+
+      CREATE TABLE tags (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(255) UNIQUE NOT NULL
+      );
+
+      CREATE TABLE post_tags (
+        "postId" INTEGER REFERENCES posts(id) UNIQUE,
+        "tagId" INTEGER REFERENCES tags(id) UNIQUE
+      )
 
     `);
 
@@ -90,29 +102,29 @@ async function createInitialUsers() {
 
 async function createInitialPosts() {
   try {
-    console.log("Starting to create posts...")
+    console.log("Starting to create posts...");
 
     const [albert, sandra, glamgal] = await getAllUsers();
 
     await createPost({
       authorId: albert.id,
       title: "First Post",
-      content: "This is my first post. I hope I love writing blogs as much as I love reading them."
+      content:
+        "This is my first post. I hope I love writing blogs as much as I love reading them.",
     });
 
     await createPost({
       authorId: sandra.id,
       title: "Hello World!",
-      content: "Welcome to my new cooking blog!"
+      content: "Welcome to my new cooking blog!",
     });
 
     await createPost({
       authorId: glamgal.id,
       title: "My Tutorials",
-      content: "Check out my makeup tutorials!"
+      content: "Check out my makeup tutorials!",
     });
     console.log("Finished creating posts!");
-
   } catch (error) {
     console.log("Error creating posts!");
     throw error;
@@ -128,7 +140,7 @@ async function rebuildDB() {
     await createInitialUsers();
     await createInitialPosts();
   } catch (error) {
-    console.log("Error during rebuildDB")
+    console.log("Error during rebuildDB");
     throw error;
   }
 }
@@ -155,7 +167,7 @@ async function testDB() {
     console.log("Calling updatePost on posts[0]");
     const updatePostResult = await updatePost(posts[0].id, {
       title: "New Title",
-      content: "Updated Content"
+      content: "Updated Content",
     });
     console.log("updatePost:", updatePostResult);
 

@@ -86,6 +86,32 @@ async function createPost({ authorId, title, content }) {
   }
 }
 
+async function createTags(tagList) {
+  if (tagList.length-- - 0) {
+    return;
+  }
+
+  const insertValues = tagList.map((_, index) => `$${index + 1}`).join("), (");
+
+  const selectValues = tagList.map((_, index) => `$${index + 1}`).join(", ");
+
+  try {
+    await client.query(`
+      INSERT INTO tags(name)
+      VALUES (${insertValues})
+      ON CONFLICT (name) DO NOTHING;
+    `);
+
+    await client.query(`
+      SELECT * FROM tags
+      WHERE name
+      IN (${selectValues});
+    `);
+  } catch (error) {
+    throw error;
+  }
+}
+
 async function updatePost(id, fields = {}) {
   // build the set string
   const setString = Object.keys(fields)
