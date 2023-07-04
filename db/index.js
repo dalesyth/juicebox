@@ -1,14 +1,14 @@
-const { Client } = require("pg"); // imports the pg module
+const { Client } = require("pg");
 
 const client = new Client("postgres://localhost:5432/juicebox-dev");
 
 async function updateUser(id, fields = {}) {
-  // build the set string
+ 
   const setString = Object.keys(fields)
     .map((key, index) => `"${key}"=$${index + 1}`)
     .join(", ");
 
-  // return early if this is called without fields
+  
   if (setString.length === 0) {
     return;
   }
@@ -81,29 +81,21 @@ async function createPost({ authorId, title, content, tags = [] }) {
     );
 
     const tagList = await createTags(tags);
-    
 
     return await addTagsToPost(post.id, tagList);
-    
   } catch (error) {
     throw error;
   }
 }
 
 async function createTags(tagList) {
-  
-
   if (tagList.length === 0) {
     return;
   }
 
   const insertValues = tagList.map((_, index) => `$${index + 1}`).join("), (");
 
-  
-
   const selectValues = tagList.map((_, index) => `$${index + 1}`).join(", ");
-
-  
 
   try {
     await client.query(
@@ -131,7 +123,6 @@ async function createTags(tagList) {
 }
 
 async function createPostTag(postId, tagId) {
- 
   try {
     await client.query(
       `
@@ -147,27 +138,20 @@ async function createPostTag(postId, tagId) {
 }
 
 async function addTagsToPost(postId, tagList) {
-
- 
   try {
     const createPostTagPromises = tagList.map((tag) =>
       createPostTag(postId, tag.id)
     );
 
-  await Promise.all(createPostTagPromises);
+    await Promise.all(createPostTagPromises);
 
-  
-
-  return await getPostById(postId);
-
+    return await getPostById(postId);
   } catch (error) {
     throw error;
   }
 }
 
 async function getPostById(postId) {
-  
-
   try {
     const {
       rows: [post],
@@ -213,19 +197,20 @@ async function getPostById(postId) {
 }
 
 async function updatePost(postId, fields = {}) {
-  // read off the tags & remove that field
-  const { tags } = fields; // might be undefined
+  
+  const { tags } = fields; 
   delete fields.tags;
 
-  // build the set string
+  
   const setString = Object.keys(fields)
     .map((key, index) => `"${key}"=$${index + 1}`)
     .join(", ");
 
   try {
-    // update any fields that need to be updated
+    
     if (setString.length > 0) {
-      await client.query(`
+      await client.query(
+        `
         UPDATE posts
         SET ${setString}
         WHERE id=${postId}
@@ -235,16 +220,16 @@ async function updatePost(postId, fields = {}) {
       );
     }
 
-    // return early if there's no tags to update
+    
     if (tags === undefined) {
       return await getPostById(postId);
     }
 
-    // make any new tags that need to be made
+    
     const tagList = await createTags(tags);
     const tagListIdString = tagList.map((tag) => `${tag.id}`).join(", ");
 
-    // delete any post_tags from the database which aren't in that tagList
+    
     await client.query(
       `
       DELETE FROM post_tags
@@ -255,7 +240,7 @@ async function updatePost(postId, fields = {}) {
       [postId]
     );
 
-    // and create post_tags as necessary
+    
     await addTagsToPost(postId, tagList);
 
     return await getPostById(postId);
