@@ -4,6 +4,8 @@ const server = express();
 
 require("dotenv").config();
 
+const { SERVER_PORT } = process.env;
+
 const morgan = require("morgan");
 server.use(morgan("dev"));
 
@@ -16,6 +18,6 @@ const { client } = require("./db");
 
 client.connect();
 
-server.listen(PORT, () => {
-  console.log("The server is up on port", PORT);
+server.listen(SERVER_PORT, () => {
+  console.log(`Server is running on port: ${SERVER_PORT}`);
 });
